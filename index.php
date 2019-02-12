@@ -6,9 +6,16 @@ $result = get_default_result();
 
 $xml = simplexml_load_file('https://www.reddit.com/r/TellAlexa.rss');
 
-$result->titleText = 'The top post from r/TellAlexa';
-$result->mainText = (string) $xml->entry[0]->title;
-$result->redirectionUrl = 'https://reddit.com/r/TellAlexa/hot';
+if ($xml === null || $xml === false || sizeof($xml->entry) === 0) {
+	$result->titleText = 'Unknown error reading r/TellAlexa';
+	$result->mainText = 'Sorry, I am currently unable to reach r slash tell alexa';
+	$result->redirectionUrl = 'https://reddit.com/r/TellAlexa/hot';
+}
+else {
+	$result->titleText = 'The top post from r/TellAlexa';
+	$result->mainText = (string) $xml->entry[0]->title;
+	$result->redirectionUrl = 'https://reddit.com/r/TellAlexa/hot';
+}
 
 echo json_encode($result);
 
