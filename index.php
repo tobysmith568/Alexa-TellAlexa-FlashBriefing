@@ -29,8 +29,17 @@ function get_default_result() {
 	$dt->setTimeZone(new DateTimeZone('UTC'));
 
 	$result = new stdClass();
-	$result->uid = 'urn:uuid:' . uniqid();
+	$result->uid = 'urn:uuid:' . get_uuid();
 	$result->updateDate = $dt->format('Y-m-d\TH:i:s.\0\Z');
 	
 	return $result;
+}
+
+function get_uuid() {
+	$data = random_bytes(16);
+
+    $data[6] = chr(ord($data[6]) & 0x0f | 0x40);
+    $data[8] = chr(ord($data[8]) & 0x3f | 0x80);
+
+    return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
 }
