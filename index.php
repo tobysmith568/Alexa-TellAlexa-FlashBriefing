@@ -4,25 +4,55 @@ header('Content-Type: application/json');
 
 $result = get_default_result();
 
-$xml = simplexml_load_file('https://www.reddit.com/r/TellAlexa.rss');
+$feed = strtolower($_GET['feed']);
 
-if ($xml === null || $xml === false || sizeof($xml->entry) === 0) {
+if ($feed === null || $feed == false) {
+	$result->titleText = 'Unknown Input!';
+	$result->mainText = 'Sorry, I am not aware of that subreddit feed type';
+	$result->redirectionUrl = 'https://reddit.com/r/TellAlexa';
+	send_result($result);
+}
+
+switch($feed) {
+	
+	case 'hot':
+	case 'new':
+	case 'controversial':
+	case 'top':
+	case 'rising':
+		$xml = simplexml_load_file("https://www.reddit.com/r/TellAlexa/$feed/.rss");
+		break;
+		
+	default:
+		$result->titleText = 'Unknown Input!';
+		$result->mainText = 'Sorry, I am not aware of that subreddit feed type';
+		$result->redirectionUrl = 'https://reddit.com/r/TellAlexa';
+		send_result($result);
+		break;
+}
+		
+if ($xml === null || $xml === false) {
 	$result->titleText = 'Unknown error reading r/TellAlexa';
-	$result->mainText = 'Sorry, I am currently unable to reach r slash tell alexa';
-	$result->redirectionUrl = 'https://reddit.com/r/TellAlexa/hot';
-}
-else {
-	$result->titleText = 'The top post from r/TellAlexa';
-	$result->mainText = (string) $xml->entry[0]->title;
-	$result->redirectionUrl = 'https://reddit.com/r/TellAlexa/hot';
+	$result->mainText = 'Sorry, I am currently unable to reach R slash tell Alexa';
+	$result->redirectionUrl = 'https://reddit.com/r/TellAlexa';
+	send_result($result);
 }
 
-echo json_encode($result);
+if (sizeof($xml->entry) === 0) {
+	$result->titleText = "The top $feed post from r/TellAlexa";
+	$result->mainText = "Sorry, currently there are no $feed posts!";
+	$result->redirectionUrl = "https://reddit.com/r/TellAlexa/$feed";
+	send_result($result);
+}
 
-die();
+$result->titleText = "The top $feed post from r/TellAlexa";
+$result->mainText = (string) $xml->entry[0]->title;
+$result->redirectionUrl = "https://reddit.com/r/TellAlexa/$feed";
 
+send_result($result);
 
-
+//	Functions
+//	=========
 
 function get_default_result() {
 	$dt = new DateTime();
@@ -42,4 +72,9 @@ function get_uuid() {
     $data[8] = chr(ord($data[8]) & 0x3f | 0x80);
 
     return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
+}
+
+function send_result($result) {	
+	echo json_encode($result);
+	die();
 }
