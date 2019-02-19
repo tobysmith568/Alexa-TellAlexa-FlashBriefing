@@ -8,7 +8,7 @@ $feed = strtolower($_GET['feed']);
 
 if ($feed === null || $feed == false) {
 	$result->titleText = 'Unknown Input!';
-	$result->mainText = 'Sorry, I am not aware of that subreddit feed type';
+	$result->mainText = 'Sorry, You need to give me a feed type';
 	$result->redirectionUrl = 'https://reddit.com/r/TellAlexa';
 	send_result($result);
 }
@@ -25,7 +25,7 @@ switch($feed) {
 		
 	default:
 		$result->titleText = 'Unknown Input!';
-		$result->mainText = 'Sorry, I am not aware of that subreddit feed type';
+		$result->mainText = "Sorry, I am not aware of the subreddit feed type $feed";
 		$result->redirectionUrl = 'https://reddit.com/r/TellAlexa';
 		send_result($result);
 		break;
