@@ -45,15 +45,15 @@ if (sizeof($xml->entry) === 0) {
 	send_result($result);
 }
 
-$result = (string) $xml->entry[0]->title;
+$post = (string) $xml->entry[0]->title;
 		
-if (strlen($result) > 140)
+if (strlen($post) > 140)
 {
-	$result = substr($result, 0, 140);
+	$post = substr($post, 0, 140);
 }
 
 $result->titleText = "The top $feed post from r/TellAlexa";
-$result->mainText = $result;
+$result->mainText = $post;
 $result->redirectionUrl = "https://reddit.com/r/TellAlexa/$feed";
 
 send_result($result);
