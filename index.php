@@ -30,7 +30,7 @@ switch($feed) {
 		send_result($result);
 		break;
 }
-		
+
 if ($xml === null || $xml === false) {
 	$result->titleText = 'Unknown error reading r/TellAlexa';
 	$result->mainText = 'Sorry, I am currently unable to reach R slash tell Alexa';
@@ -45,8 +45,8 @@ if (sizeof($xml->entry) === 0) {
 	send_result($result);
 }
 
-$post = (string) $xml->entry[0]->title;
-		
+$post = cleanString((string) $xml->entry[0]->title);
+
 if (strlen($post) > 140)
 {
 	$post = substr($post, 0, 140);
@@ -81,7 +81,35 @@ function get_uuid() {
     return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
 }
 
-function send_result($result) {	
+function cleanString($text) {
+    $utf8 = array(
+        '/[áàâãªä]/u'     => 'a',
+        '/[ÁÀÂÃÄ]/u'      => 'A',
+        '/[ÍÌÎÏ]/u'       => 'I',
+        '/[íìîï]/u'       => 'i',
+        '/[éèêë]/u'       => 'e',
+        '/[ÉÈÊË]/u'       => 'E',
+        '/[óòôõºö]/u'     => 'o',
+        '/[ÓÒÔÕÖ]/u'      => 'O',
+        '/[úùûü]/u'       => 'u',
+        '/[ÚÙÛÜ]/u'       => 'U',
+        '/ç/'             => 'c',
+        '/Ç/'             => 'C',
+        '/ñ/'             => 'n',
+        '/Ñ/'             => 'N',
+		'/ \& /u'         => ' and ',
+		'/ \@ /u'         => ' at ',
+        '/–/'             => '-',
+        '/[\’\‘\‹\›\‚]/u' => '\'',
+        '/[\“\”\«\»\„]/u' => '"',
+        '/ /'             => ' ',
+		'/[^ a-zA-Z1-9\!\"\\\'\£\$\€\¥\%\-\;\:\,\.\?]/u' => ''
+    );
+	
+    return preg_replace(array_keys($utf8), array_values($utf8), $text);
+}
+
+function send_result($result) {
 	echo json_encode($result);
 	die();
 }
